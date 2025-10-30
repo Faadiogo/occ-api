@@ -14,7 +14,7 @@ export class AdminController {
       // Buscar administrador
       const { data: admin, error } = await supabase
         .from('admins')
-        .select('id, name, email, password_hash')
+        .select('id, name, email, password_hash, role')
         .eq('email', email)
         .single();
 
@@ -33,7 +33,7 @@ export class AdminController {
       const tokens = JWTUtils.generateTokenPair({
         id: admin.id,
         email: admin.email,
-        role: 'ADMIN',
+        role: admin.role,
       });
 
       return ApiResponse.success(res, {
@@ -41,7 +41,7 @@ export class AdminController {
           id: admin.id,
           name: admin.name,
           email: admin.email,
-          role: 'ADMIN',
+          role: admin.role,
         },
         ...tokens,
       }, 'Login realizado com sucesso');
@@ -74,7 +74,7 @@ export class AdminController {
 
       const { data: admin, error } = await supabase
         .from('admins')
-        .select('id, name, email, created_at, updated_at')
+        .select('id, name, email, role, created_at, updated_at')
         .eq('id', adminId)
         .single();
 
@@ -90,7 +90,7 @@ export class AdminController {
 
   static async createClient(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { name, email, password, company_name, cnpj, regime_tributario } = req.body;
+      const { name, email, password, company_name, cnpj, regime_tributario, cnae, cnaes_secundarios } = req.body;
       const created_by = req.user?.id;
 
       // Verificar se o email já existe
@@ -131,6 +131,8 @@ export class AdminController {
           company_name,
           cnpj,
           regime_tributario,
+          cnae,
+          cnaes_secundarios: cnaes_secundarios || [],
         })
         .select()
         .single();
@@ -242,7 +244,7 @@ export class AdminController {
   static async updateClient(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { name, email, company_name, cnpj, regime_tributario } = req.body;
+      const { name, email, company_name, cnpj, regime_tributario, cnae, cnaes_secundarios } = req.body;
 
       // Atualizar dados do cliente
       const { data: client, error } = await supabase
@@ -259,7 +261,13 @@ export class AdminController {
       // Atualizar dados da empresa
       const { data: company, error: companyError } = await supabase
         .from('client_companies')
-        .update({ company_name, cnpj, regime_tributario })
+        .update({ 
+          company_name, 
+          cnpj, 
+          regime_tributario, 
+          cnae,
+          cnaes_secundarios: cnaes_secundarios || []
+        })
         .eq('client_id', id)
         .select()
         .single();
@@ -309,7 +317,7 @@ export class AdminController {
         throw new ForbiddenError('Apenas super administradores podem criar outros admins');
       }
 
-      const { name, email, password } = req.body;
+      const { name, email, password, role } = req.body;
 
       // Verificar se o email já existe
       const { data: existingAdmin } = await supabase
@@ -322,6 +330,9 @@ export class AdminController {
         throw new ConflictError('Email já cadastrado');
       }
 
+      // Validar role (apenas ADMIN ou SUPER_ADMIN são permitidos)
+      const adminRole = role && (role === 'SUPER_ADMIN' || role === 'ADMIN') ? role : 'ADMIN';
+
       // Hash da senha
       const password_hash = await bcrypt.hash(password, 10);
 
@@ -332,7 +343,7 @@ export class AdminController {
           name,
           email,
           password_hash,
-          role: 'ADMIN' // Sempre cria como ADMIN (não SUPER_ADMIN)
+          role: adminRole
         })
         .select('id, name, email, role, created_at')
         .single();
@@ -408,7 +419,7 @@ export class AdminController {
       }
 
       const { id } = req.params;
-      const { name, email } = req.body;
+      const { name, email, password, role } = req.body;
 
       // Verificar se o admin existe
       const { data: existingAdmin } = await supabase
@@ -421,14 +432,22 @@ export class AdminController {
         throw new NotFoundError('Administrador não encontrado');
       }
 
-      // Não permitir alterar SUPER_ADMIN
-      if (existingAdmin.role === 'SUPER_ADMIN') {
-        throw new ForbiddenError('Não é possível alterar dados do super administrador');
+      // Preparar dados para atualização
+      const updateData: any = { name, email };
+      
+      // Se uma nova senha foi fornecida, hashear e adicionar
+      if (password) {
+        updateData.password_hash = await bcrypt.hash(password, 10);
+      }
+      
+      // Se um role foi fornecido e é válido, adicionar
+      if (role && (role === 'ADMIN' || role === 'SUPER_ADMIN')) {
+        updateData.role = role;
       }
 
       const { data: admin, error } = await supabase
         .from('admins')
-        .update({ name, email })
+        .update(updateData)
         .eq('id', id)
         .select('id, name, email, role, updated_at')
         .single();

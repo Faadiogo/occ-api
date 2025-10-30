@@ -5,6 +5,7 @@ import { JWTUtils } from '../utils/jwt';
 import { ApiResponse } from '../utils/response';
 import { UnauthorizedError, NotFoundError } from '../utils/errors';
 import { AuthRequest } from '../middlewares/auth.middleware';
+import { UserRole } from '../types';
 
 export class ClientAuthController {
   static async login(req: AuthRequest, res: Response, next: NextFunction) {
@@ -39,7 +40,7 @@ export class ClientAuthController {
       const tokens = JWTUtils.generateTokenPair({
         id: client.id,
         email: client.email,
-        role: 'CLIENT',
+        role: UserRole.CLIENT,
       });
 
       return ApiResponse.success(res, {
@@ -47,7 +48,7 @@ export class ClientAuthController {
           id: client.id,
           name: client.name,
           email: client.email,
-          role: 'CLIENT',
+          role: UserRole.CLIENT,
           company: client.company
         },
         ...tokens,

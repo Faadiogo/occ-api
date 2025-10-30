@@ -3,6 +3,17 @@ import { supabase } from '../config/database';
 import { ApiResponse } from '../utils/response';
 import { NotFoundError } from '../utils/errors';
 import { AuthRequest } from '../middlewares/auth.middleware';
+import { v2 as cloudinary } from 'cloudinary';
+import { config } from '../config/env';
+
+// Configurar Cloudinary apenas se as credenciais estiverem disponíveis
+if (config.cloudinary.cloudName && config.cloudinary.apiKey && config.cloudinary.apiSecret) {
+  cloudinary.config({
+    cloud_name: config.cloudinary.cloudName,
+    api_key: config.cloudinary.apiKey,
+    api_secret: config.cloudinary.apiSecret,
+  });
+}
 
 export class PostController {
   static async list(req: AuthRequest, res: Response, next: NextFunction) {
@@ -143,18 +154,122 @@ export class PostController {
     try {
       const { id } = req.params;
 
+      // Primeiro, buscar o post para obter as imagens
+      const { data: post, error: fetchError } = await supabase
+        .from('posts')
+        .select('id, cover_image, content')
+        .eq('id', id)
+        .single();
+
+      if (fetchError || !post) {
+        throw new NotFoundError('Post não encontrado');
+      }
+
+      // Deletar imagens do Cloudinary se estiver configurado
+      console.log('🔍 Verificando configuração do Cloudinary...');
+      console.log('Cloudinary configurado:', !!(config.cloudinary.cloudName && config.cloudinary.apiKey && config.cloudinary.apiSecret));
+      
+      if (config.cloudinary.cloudName && config.cloudinary.apiKey && config.cloudinary.apiSecret) {
+        console.log('✅ Cloudinary configurado, iniciando exclusão de imagens...');
+        
+        try {
+          // Deletar cover_image se existir
+          if (post.cover_image) {
+            console.log('🖼️ Cover image encontrada:', post.cover_image);
+            const publicId = PostController.extractPublicIdFromUrl(post.cover_image);
+            console.log('🔑 Public ID extraído:', publicId);
+            
+            if (publicId) {
+              const result = await cloudinary.uploader.destroy(publicId);
+              console.log('✅ Cover image deletada do Cloudinary:', result);
+            } else {
+              console.log('⚠️ Não foi possível extrair public_id da cover image');
+            }
+          } else {
+            console.log('ℹ️ Nenhuma cover image encontrada');
+          }
+
+          // Buscar e deletar imagens do conteúdo do post
+          const contentImages = PostController.extractImagesFromContent(post.content || '');
+          console.log('📝 Imagens do conteúdo encontradas:', contentImages.length);
+          
+          for (const imageUrl of contentImages) {
+            console.log('🖼️ Processando imagem do conteúdo:', imageUrl);
+            const publicId = PostController.extractPublicIdFromUrl(imageUrl);
+            console.log('🔑 Public ID extraído:', publicId);
+            
+            if (publicId) {
+              const result = await cloudinary.uploader.destroy(publicId);
+              console.log('✅ Imagem do conteúdo deletada do Cloudinary:', result);
+            } else {
+              console.log('⚠️ Não foi possível extrair public_id da imagem do conteúdo');
+            }
+          }
+        } catch (cloudinaryError) {
+          console.error('❌ Erro ao deletar imagens do Cloudinary:', cloudinaryError);
+          // Não falhar a operação se houver erro no Cloudinary
+        }
+      } else {
+        console.log('⚠️ Cloudinary não configurado, pulando exclusão de imagens');
+      }
+
+      // Deletar o post do banco
       const { error } = await supabase
         .from('posts')
         .delete()
         .eq('id', id);
 
       if (error) {
-        throw new NotFoundError('Post não encontrado');
+        throw new Error(error.message);
       }
 
-      return ApiResponse.success(res, null, 'Post deletado com sucesso');
+      return ApiResponse.success(res, null, 'Post e imagens deletados com sucesso');
     } catch (error) {
       return next(error);
+    }
+  }
+
+  // Método auxiliar para extrair public_id de uma URL do Cloudinary
+  private static extractPublicIdFromUrl(url: string): string | null {
+    if (!url || !url.includes('cloudinary.com')) {
+      console.log('⚠️ URL não é do Cloudinary:', url);
+      return null;
+    }
+
+    try {
+      console.log('🔍 Analisando URL do Cloudinary:', url);
+      
+      // Extrair o public_id da URL do Cloudinary
+      // Formato: https://res.cloudinary.com/cloud_name/image/upload/v1234567890/folder/public_id.jpg
+      // ou: https://res.cloudinary.com/cloud_name/image/upload/folder/public_id.jpg
+      const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)\.(jpg|jpeg|png|gif|webp)$/i);
+      
+      if (match) {
+        const publicId = match[1];
+        console.log('✅ Public ID extraído com sucesso:', publicId);
+        return publicId;
+      } else {
+        console.log('⚠️ Não foi possível extrair public_id da URL');
+        return null;
+      }
+    } catch (error) {
+      console.error('❌ Erro ao extrair public_id:', error);
+      return null;
+    }
+  }
+
+  // Método auxiliar para extrair imagens do conteúdo HTML
+  private static extractImagesFromContent(content: string): string[] {
+    if (!content) return [];
+
+    try {
+      // Regex para encontrar URLs de imagens do Cloudinary no conteúdo
+      const imageRegex = /https:\/\/res\.cloudinary\.com\/[^\/]+\/image\/upload\/[^"'\s]+\.(jpg|jpeg|png|gif|webp)/gi;
+      const matches = content.match(imageRegex);
+      return matches || [];
+    } catch (error) {
+      console.error('Erro ao extrair imagens do conteúdo:', error);
+      return [];
     }
   }
 }

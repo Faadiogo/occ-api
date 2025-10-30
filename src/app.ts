@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { config } from './config/env';
 import routes from './routes';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
+import { requestLogger } from './utils/logger';
 
 const app: Application = express();
 
@@ -16,11 +17,8 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Logging simples
-app.use((req, _res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-  next();
-});
+// Logging estruturado
+app.use(requestLogger);
 
 // Rotas da API
 app.use('/api', routes);
@@ -33,12 +31,16 @@ app.get('/', (_req, res) => {
     version: '1.0.0',
     endpoints: {
       health: '/api/health',
-      auth: '/api/auth',
+      admin: '/api/admin',
+      'client-auth': '/api/client-auth',
       posts: '/api/posts',
       categories: '/api/categories',
       clients: '/api/clients',
       surveys: '/api/surveys',
-      taxPlans: '/api/tax-plans',
+      'tax-plans': '/api/tax-plans',
+      upload: '/api/upload',
+      cnae: '/api/cnae',
+      email: '/api/email',
     },
   });
 });

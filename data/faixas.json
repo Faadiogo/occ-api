@@ -1,0 +1,242 @@
+[
+  {
+    "Anexo": "I",
+    "Faixa": "1ª Faixa",
+    "Receita de": 0.00,
+    "Receita até": 180000.00,
+    "Alíquota": 0.04,
+    "Valor a Deduzir": 0.00
+  },
+  {
+    "Anexo": "I",
+    "Faixa": "2ª Faixa",
+    "Receita de": 180000.01,
+    "Receita até": 360000.00,
+    "Alíquota": 0.073,
+    "Valor a Deduzir": 5940.00
+  },
+  {
+    "Anexo": "I",
+    "Faixa": "3ª Faixa",
+    "Receita de": 360000.01,
+    "Receita até": 720000.00,
+    "Alíquota": 0.095,  
+    "Valor a Deduzir": 13860.00
+  },
+  {
+    "Anexo": "I",
+    "Faixa": "4ª Faixa",
+    "Receita de": 720000.01,
+    "Receita até": 1800000.00,
+    "Alíquota": 0.107,
+    "Valor a Deduzir": 22500.00
+  },
+  {
+    "Anexo": "I",
+    "Faixa": "5ª Faixa",
+    "Receita de": 1800000.01,
+    "Receita até": 3600000.00,
+    "Alíquota": 0.143,
+    "Valor a Deduzir": 87300.00
+  },
+  {
+    "Anexo": "I",
+    "Faixa": "6ª Faixa",
+    "Receita de": 3600000.01,
+    "Receita até": 4800000.00,
+    "Alíquota": 0.19,
+    "Valor a Deduzir": 378000.00
+  },
+  {
+    "Anexo": "II",
+    "Faixa": "1ª Faixa",
+    "Receita de": 0.00,
+    "Receita até": 180000.00,
+    "Alíquota": 0.045,
+    "Valor a Deduzir": 0.00
+  },
+  {
+    "Anexo": "II",
+    "Faixa": "2ª Faixa",
+    "Receita de": 180000.01,
+    "Receita até": 360000.00,
+    "Alíquota": 0.078,
+    "Valor a Deduzir": 5940.00
+  },
+  {
+    "Anexo": "II",
+    "Faixa": "3ª Faixa",
+    "Receita de": 360000.01,
+    "Receita até": 720000.00,
+    "Alíquota": 0.10,
+    "Valor a Deduzir": 13860.00
+  },
+  {
+    "Anexo": "II",
+    "Faixa": "4ª Faixa",
+    "Receita de": 720000.01,
+    "Receita até": 1800000.00,
+    "Alíquota": 0.112,
+    "Valor a Deduzir": 22500.00
+  },
+  {
+    "Anexo": "II",
+    "Faixa": "5ª Faixa",
+    "Receita de": 1800000.01,
+    "Receita até": 3600000.00,
+    "Alíquota": 0.147,
+    "Valor a Deduzir": 85500.00
+  },
+  {
+    "Anexo": "II",
+    "Faixa": "6ª Faixa",
+    "Receita de": 3600000.01,
+    "Receita até": 4800000.00,
+    "Alíquota": 0.30,
+    "Valor a Deduzir": 720000.00
+  },
+  {
+    "Anexo": "III",
+    "Faixa": "1ª Faixa",
+    "Receita de": 0.00,
+    "Receita até": 180000.00,
+    "Alíquota": 0.06,
+    "Valor a Deduzir": 0.00
+  },
+  {
+    "Anexo": "III",
+    "Faixa": "2ª Faixa",
+    "Receita de": 180000.01,
+    "Receita até": 360000.00,
+    "Alíquota": 0.112,
+    "Valor a Deduzir": 9360.00
+  },
+  {
+    "Anexo": "III",
+    "Faixa": "3ª Faixa",
+    "Receita de": 360000.01,
+    "Receita até": 720000.00,
+    "Alíquota": 0.135,
+    "Valor a Deduzir": 17640.00
+  },
+  {
+    "Anexo": "III",
+    "Faixa": "4ª Faixa",
+    "Receita de": 720000.01,
+    "Receita até": 1800000.00,
+    "Alíquota": 0.16,
+    "Valor a Deduzir": 35640.00
+  },
+  {
+    "Anexo": "III",
+    "Faixa": "5ª Faixa",
+    "Receita de": 1800000.01,
+    "Receita até": 3600000.00,
+    "Alíquota": 0.21,
+    "Valor a Deduzir": 125640.00
+  },
+  {
+    "Anexo": "III",
+    "Faixa": "6ª Faixa",
+    "Receita de": 3600000.01,
+    "Receita até": 4800000.00,
+    "Alíquota": 0.33,
+    "Valor a Deduzir": 648000.00
+  },
+  {
+    "Anexo": "IV",
+    "Faixa": "1ª Faixa",
+    "Receita de": 0.00,
+    "Receita até": 180000.00,
+    "Alíquota": 0.045,
+    "Valor a Deduzir": 0.00
+  },
+  {
+    "Anexo": "IV",
+    "Faixa": "2ª Faixa",
+    "Receita de": 180000.01,
+    "Receita até": 360000.00,
+    "Alíquota": 0.09,
+    "Valor a Deduzir": 8100.00
+  },
+  {
+    "Anexo": "IV",
+    "Faixa": "3ª Faixa",
+    "Receita de": 360000.01,
+    "Receita até": 720000.00,
+    "Alíquota": 0.102,
+    "Valor a Deduzir": 12420.00
+  },
+  {
+    "Anexo": "IV",
+    "Faixa": "4ª Faixa",
+    "Receita de": 720000.01,
+    "Receita até": 1800000.00,
+    "Alíquota": 0.14,
+    "Valor a Deduzir": 39780.00
+  },
+  {
+    "Anexo": "IV",
+    "Faixa": "5ª Faixa",
+    "Receita de": 1800000.01,
+    "Receita até": 3600000.00,
+    "Alíquota": 0.22,
+    "Valor a Deduzir": 183780.00
+  },
+  {
+    "Anexo": "IV",
+    "Faixa": "6ª Faixa",
+    "Receita de": 3600000.01,
+    "Receita até": 4800000.00,
+    "Alíquota": 0.33,
+    "Valor a Deduzir": 828000.00
+  },
+  {
+    "Anexo": "V",
+    "Faixa": "1ª Faixa",
+    "Receita de": 0.00,
+    "Receita até": 180000.00,
+    "Alíquota": 0.155,
+    "Valor a Deduzir": 0.00
+  },
+  {
+    "Anexo": "V",
+    "Faixa": "2ª Faixa",
+    "Receita de": 180000.01,
+    "Receita até": 360000.00,
+    "Alíquota": 0.18,
+    "Valor a Deduzir": 4500.00
+  },
+  {
+    "Anexo": "V",
+    "Faixa": "3ª Faixa",
+    "Receita de": 360000.01,
+    "Receita até": 720000.00,
+    "Alíquota": 0.195,
+    "Valor a Deduzir": 9900.00
+  },
+  {
+    "Anexo": "V",
+    "Faixa": "4ª Faixa",
+    "Receita de": 720000.01,
+    "Receita até": 1800000.00,
+    "Alíquota": 0.205,
+    "Valor a Deduzir": 17100.00
+  },
+  {
+    "Anexo": "V",
+    "Faixa": "5ª Faixa",
+    "Receita de": 1800000.01,
+    "Receita até": 3600000.00,
+    "Alíquota": 0.23,
+    "Valor a Deduzir": 62100.00
+  },
+  {
+    "Anexo": "V",
+    "Faixa": "6ª Faixa",
+    "Receita de": 3600000.01,
+    "Receita até": 4800000.00,
+    "Alíquota": 0.305,
+    "Valor a Deduzir": 540000.00
+  }
+]

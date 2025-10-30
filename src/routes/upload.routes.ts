@@ -26,7 +26,7 @@ const upload = multer({
 router.post(
   '/image',
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   upload.single('image'),
   UploadController.uploadImage
 );
@@ -34,7 +34,7 @@ router.post(
 router.delete(
   '/image',
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   UploadController.deleteImage
 );
 

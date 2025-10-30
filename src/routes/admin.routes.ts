@@ -23,6 +23,8 @@ const createClientSchema = z.object({
   company_name: z.string().min(2, 'Nome da empresa deve ter pelo menos 2 caracteres'),
   cnpj: z.string().length(14, 'CNPJ deve ter 14 dígitos'),
   regime_tributario: z.enum(['Simples Nacional', 'Lucro Presumido', 'Lucro Real']),
+  cnae: z.string().min(1, 'CNAE é obrigatório'),
+  cnaes_secundarios: z.array(z.string()).optional(),
 });
 
 const updateClientSchema = z.object({
@@ -31,17 +33,22 @@ const updateClientSchema = z.object({
   company_name: z.string().min(2, 'Nome da empresa deve ter pelo menos 2 caracteres').optional(),
   cnpj: z.string().length(14, 'CNPJ deve ter 14 dígitos').optional(),
   regime_tributario: z.enum(['Simples Nacional', 'Lucro Presumido', 'Lucro Real']).optional(),
+  cnae: z.string().optional().or(z.literal('')),
+  cnaes_secundarios: z.array(z.string()).optional(),
 });
 
 const createAdminSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+  role: z.enum(['ADMIN', 'SUPER_ADMIN']).optional(),
 });
 
 const updateAdminSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').optional(),
   email: z.string().email('Email inválido').optional(),
+  password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres').optional(),
+  role: z.enum(['ADMIN', 'SUPER_ADMIN']).optional(),
 });
 
 // Rotas públicas

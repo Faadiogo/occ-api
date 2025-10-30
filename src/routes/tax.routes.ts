@@ -2,63 +2,44 @@ import { Router } from 'express';
 import { TaxController } from '../controllers/tax.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validate.middleware';
-import { createTaxPlanSchema, createRevenueSchema, createExpenseSchema } from '../schemas/tax.schema';
+import { taxCalculationSchema } from '../schemas/tax-calculation.schema';
 import { UserRole } from '../types';
 
 const router = Router();
 
-// Rotas de Plan. Tributário
-router.get('/', authenticate, TaxController.list);
-router.get('/:id', authenticate, TaxController.getById);
 
+// ============================================
+// ROTAS DE CÁLCULO TRIBUTÁRIO
+// ============================================
+
+// Calcular planejamento tributário comparativo
 router.post(
-  '/',
+  '/calculate',
   authenticate,
-  authorize(UserRole.ADMIN),
-  validate(createTaxPlanSchema),
-  TaxController.create
+  validate(taxCalculationSchema),
+  TaxController.calculate
 );
 
-router.put(
-  '/:id',
+// Listar relatórios de uma empresa
+router.get(
+  '/reports/company/:companyId',
   authenticate,
-  authorize(UserRole.ADMIN),
-  TaxController.update
+  TaxController.getReportsByCompany
 );
 
+// Buscar detalhes de um relatório específico
+router.get(
+  '/reports/detail/:reportId',
+  authenticate,
+  TaxController.getReportDetail
+);
+
+// Deletar relatório
 router.delete(
-  '/:id',
+  '/reports/:reportId',
   authenticate,
-  authorize(UserRole.ADMIN),
-  TaxController.delete
-);
-
-// Rotas de receitas
-router.post(
-  '/:id/revenues',
-  authenticate,
-  validate(createRevenueSchema),
-  TaxController.addRevenue
-);
-
-router.delete(
-  '/:id/revenues/:revenueId',
-  authenticate,
-  TaxController.deleteRevenue
-);
-
-// Rotas de despesas
-router.post(
-  '/:id/expenses',
-  authenticate,
-  validate(createExpenseSchema),
-  TaxController.addExpense
-);
-
-router.delete(
-  '/:id/expenses/:expenseId',
-  authenticate,
-  TaxController.deleteExpense
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  TaxController.deleteReport
 );
 
 export default router;

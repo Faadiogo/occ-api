@@ -15,7 +15,7 @@ router.get('/:id', CategoryController.getById);
 router.post(
   '/',
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   validate(createCategorySchema),
   CategoryController.create
 );
@@ -23,7 +23,7 @@ router.post(
 router.put(
   '/:id',
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   validate(createCategorySchema),
   CategoryController.update
 );
@@ -31,7 +31,7 @@ router.put(
 router.delete(
   '/:id',
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   CategoryController.delete
 );
 

@@ -5,45 +5,35 @@ import { JWTUtils } from '../utils/jwt';
 import { ApiResponse } from '../utils/response';
 import { UnauthorizedError, ConflictError, NotFoundError } from '../utils/errors';
 import { AuthRequest } from '../middlewares/auth.middleware';
+import { UserRole } from '../types';
 
 export class AuthController {
   static async register(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { name, email, password, role } = req.body;
+      const { name, email, password } = req.body;
 
       // Verificar se o email já existe
-      const { data: existingUser } = await supabase
-        .from('users')
+      const { data: existingClient } = await supabase
+        .from('clients')
         .select('id')
         .eq('email', email)
         .single();
 
-      if (existingUser) {
+      if (existingClient) {
         throw new ConflictError('Email já cadastrado');
-      }
-
-      // Buscar role_id
-      const { data: roleData, error: roleError } = await supabase
-        .from('roles')
-        .select('id')
-        .eq('name', role || 'CLIENT')
-        .single();
-
-      if (roleError || !roleData) {
-        throw new NotFoundError('Role não encontrada');
       }
 
       // Hash da senha
       const password_hash = await bcrypt.hash(password, 10);
 
-      // Criar usuário
-      const { data: user, error } = await supabase
-        .from('users')
+      // Criar cliente
+      const { data: client, error } = await supabase
+        .from('clients')
         .insert({
           name,
           email,
           password_hash,
-          role_id: roleData.id,
+          created_by: '00000000-0000-0000-0000-000000000000', // TODO: Implementar lógica de created_by
         })
         .select('id, name, email')
         .single();
@@ -54,12 +44,12 @@ export class AuthController {
 
       // Gerar tokens
       const tokens = JWTUtils.generateTokenPair({
-        id: user.id,
-        email: user.email,
-        role: role || 'CLIENT',
+        id: client.id,
+        email: client.email,
+        role: UserRole.CLIENT,
       });
 
-      return ApiResponse.created(res, { user, ...tokens }, 'Usuário registrado com sucesso');
+      return ApiResponse.created(res, { user: client, ...tokens }, 'Cliente registrado com sucesso');
     } catch (error) {
       return next(error);
     }
@@ -69,25 +59,24 @@ export class AuthController {
     try {
       const { email, password } = req.body;
 
-      // Buscar usuário com role
-      const { data: user, error } = await supabase
-        .from('users')
+      // Buscar cliente
+      const { data: client, error } = await supabase
+        .from('clients')
         .select(`
           id,
           name,
           email,
-          password_hash,
-          role:roles(name)
+          password_hash
         `)
         .eq('email', email)
         .single();
 
-      if (error || !user) {
+      if (error || !client) {
         throw new UnauthorizedError('Email ou senha inválidos');
       }
 
       // Verificar senha
-      const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+      const isPasswordValid = await bcrypt.compare(password, client.password_hash);
 
       if (!isPasswordValid) {
         throw new UnauthorizedError('Email ou senha inválidos');
@@ -95,17 +84,17 @@ export class AuthController {
 
       // Gerar tokens
       const tokens = JWTUtils.generateTokenPair({
-        id: user.id,
-        email: user.email,
-        role: (user.role as any).name,
+        id: client.id,
+        email: client.email,
+        role: UserRole.CLIENT,
       });
 
       return ApiResponse.success(res, {
         user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: (user.role as any).name,
+          id: client.id,
+          name: client.name,
+          email: client.email,
+          role: UserRole.CLIENT,
         },
         ...tokens,
       }, 'Login realizado com sucesso');
@@ -136,23 +125,22 @@ export class AuthController {
     try {
       const userId = req.user?.id;
 
-      const { data: user, error } = await supabase
-        .from('users')
+      const { data: client, error } = await supabase
+        .from('clients')
         .select(`
           id,
           name,
           email,
-          created_at,
-          role:roles(name, description)
+          created_at
         `)
         .eq('id', userId)
         .single();
 
-      if (error || !user) {
-        throw new NotFoundError('Usuário não encontrado');
+      if (error || !client) {
+        throw new NotFoundError('Cliente não encontrado');
       }
 
-      return ApiResponse.success(res, user, 'Dados do usuário');
+      return ApiResponse.success(res, client, 'Dados do cliente');
     } catch (error) {
       return next(error);
     }

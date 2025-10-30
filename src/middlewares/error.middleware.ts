@@ -1,14 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/errors';
 import { ZodError } from 'zod';
+import { Logger } from '../utils/logger';
 
 export const errorHandler = (
   error: Error,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ): void => {
-  console.error('❌ Erro capturado:', error);
+  // Log estruturado do erro
+  Logger.logError(error, {
+    requestId: (req as any).requestId,
+    userId: (req as any).user?.id,
+    userRole: (req as any).user?.role,
+    method: req.method,
+    path: req.path
+  });
 
   // Erros de validação do Zod
   if (error instanceof ZodError) {
@@ -18,6 +26,7 @@ export const errorHandler = (
       errors: error.errors.map(err => ({
         field: err.path.join('.'),
         message: err.message,
+        code: err.code,
       })),
     });
     return;
@@ -25,10 +34,23 @@ export const errorHandler = (
 
   // Erros operacionais (AppError)
   if (error instanceof AppError) {
-    res.status(error.statusCode).json({
+    const response: any = {
       success: false,
       message: error.message,
-    });
+      timestamp: error.timestamp,
+    };
+
+    // Adicionar contexto se disponível
+    if (error.context) {
+      response.context = error.context;
+    }
+
+    // Adicionar stack trace em desenvolvimento
+    if (process.env.NODE_ENV === 'development') {
+      response.stack = error.stack;
+    }
+
+    res.status(error.statusCode).json(response);
     return;
   }
 
@@ -36,7 +58,11 @@ export const errorHandler = (
   res.status(500).json({
     success: false,
     message: 'Erro interno do servidor',
-    ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
+    timestamp: new Date().toISOString(),
+    ...(process.env.NODE_ENV === 'development' && { 
+      stack: error.stack,
+      name: error.name 
+    }),
   });
 };
 

@@ -7,7 +7,7 @@ export interface AuthRequest extends Request {
   user?: {
     id: string;
     email: string;
-    role: string;
+    role: UserRole;
   };
 }
 
@@ -29,8 +29,9 @@ export const authenticate = async (
     req.user = payload;
 
     next();
-  } catch (error: any) {
-    next(new UnauthorizedError(error.message || 'Token inválido'));
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Token inválido';
+    next(new UnauthorizedError(errorMessage));
   }
 };
 
@@ -40,7 +41,7 @@ export const authorize = (...allowedRoles: UserRole[]) => {
       return next(new UnauthorizedError('Usuário não autenticado'));
     }
 
-    if (!allowedRoles.includes(req.user.role as UserRole)) {
+    if (!allowedRoles.includes(req.user.role)) {
       return next(new ForbiddenError('Você não tem permissão para acessar este recurso'));
     }
 

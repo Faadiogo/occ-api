@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env';
+import { UserRole } from '../types';
 
 export interface TokenPayload {
   id: string;
   email: string;
-  role: string;
+  role: UserRole;
 }
 
 export class JWTUtils {

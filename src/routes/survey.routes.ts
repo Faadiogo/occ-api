@@ -14,7 +14,7 @@ router.get('/:id', authenticate, SurveyController.getById);
 router.post(
   '/',
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   validate(surveyWithQuestionsSchema),
   SurveyController.create
 );
@@ -22,14 +22,14 @@ router.post(
 router.put(
   '/:id',
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   SurveyController.update
 );
 
 router.delete(
   '/:id',
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   SurveyController.delete
 );
 
@@ -44,7 +44,7 @@ router.post(
 router.get(
   '/:id/responses',
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   SurveyController.getResponses
 );
 

@@ -16,7 +16,7 @@ router.get('/slug/:slug', PostController.getBySlug);
 router.post(
   '/',
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   validate(createPostSchema),
   PostController.create
 );
@@ -24,7 +24,7 @@ router.post(
 router.put(
   '/:id',
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   validate(updatePostSchema),
   PostController.update
 );
@@ -32,7 +32,7 @@ router.put(
 router.delete(
   '/:id',
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   PostController.delete
 );
 

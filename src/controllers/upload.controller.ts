@@ -4,12 +4,14 @@ import { ApiResponse } from '../utils/response';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { config } from '../config/env';
 
-// Configurar Cloudinary
-cloudinary.config({
-  cloud_name: config.cloudinary.cloudName,
-  api_key: config.cloudinary.apiKey,
-  api_secret: config.cloudinary.apiSecret,
-});
+// Configurar Cloudinary apenas se as credenciais estiverem disponíveis
+if (config.cloudinary.cloudName && config.cloudinary.apiKey && config.cloudinary.apiSecret) {
+  cloudinary.config({
+    cloud_name: config.cloudinary.cloudName,
+    api_key: config.cloudinary.apiKey,
+    api_secret: config.cloudinary.apiSecret,
+  });
+}
 
 export class UploadController {
   static async uploadImage(req: AuthRequest, res: Response, next: NextFunction) {
@@ -19,6 +21,23 @@ export class UploadController {
           success: false,
           message: 'Nenhum arquivo foi enviado',
         });
+      }
+
+      // Verificar se Cloudinary está configurado
+      if (!config.cloudinary.cloudName || !config.cloudinary.apiKey || !config.cloudinary.apiSecret) {
+        // Modo de desenvolvimento: retornar URL temporária
+        const tempUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+        
+        return ApiResponse.success(
+          res,
+          {
+            url: tempUrl,
+            public_id: `temp_${Date.now()}`,
+            width: 1200,
+            height: 630,
+          },
+          'Imagem processada (modo desenvolvimento - Cloudinary não configurado)'
+        );
       }
 
       // Upload para Cloudinary
@@ -68,6 +87,12 @@ export class UploadController {
           success: false,
           message: 'public_id é obrigatório',
         });
+      }
+
+      // Verificar se Cloudinary está configurado
+      if (!config.cloudinary.cloudName || !config.cloudinary.apiKey || !config.cloudinary.apiSecret) {
+        // Modo de desenvolvimento: apenas confirmar
+        return ApiResponse.success(res, null, 'Imagem deletada (modo desenvolvimento - Cloudinary não configurado)');
       }
 
       await cloudinary.uploader.destroy(public_id);

@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
+import path from 'path';
 
-dotenv.config();
+// Carregar .env do diretório raiz do projeto
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export const config = {
   port: process.env.PORT || 3001,
@@ -19,7 +21,7 @@ export const config = {
   },
   
   cors: {
-    allowedOrigins: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3001'],
+    allowedOrigins: process.env.ALLOWED_ORIGINS?.split(',')|| ['http://localhost:3000'],
   },
   
   cloudinary: {
